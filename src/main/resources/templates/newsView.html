@@ -1,10 +1,138 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>뉴스 게시판</title>
+    <style>
+        body {
+            padding: 20px 5%;
+            font-family: sans-serif;
+            text-align: center;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .search-area {
+            text-align: center;
+            margin: 40px 0;
+        }
+        input[type="text"] {
+            width: 400px;
+            padding: 10px 15px;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            font-size: 15px;
+            outline: none;
+            vertical-align: middle;
+            margin: 20px;
+        }
+
+        input[type="submit"], button, input[type="button"], input[type="reset"] {
+            padding: 10px 20px;
+            background-color: #87ceeb;
+            color: #ffffff;
+            border: none;
+            border-radius: 5px;
+            font-size: 15px;
+            font-weight: bold;
+            margin-left: 5px;
+            vertical-align: middle;
+            transition: background-color 0.2s;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #cccccc;
+            padding: 12px 8px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: #FFFFFF;
+            font-weight: bold;
+        }
+        #insertBtn {
+            margin: 20px;
+        }
+    </style>
 </head>
 <body>
 
+<div id="boardView">
+    <h1>뉴스 게시판</h1>
+
+    <div class="search-area">
+        <form action="/search" method="get">
+            <input type="text" placeholder="검색어를 입력해 주세요.">
+            <input type="submit" value="검색">
+        </form>
+    </div>
+
+    <div>
+        <table>
+            <tr>
+                <th>번호</th>
+                <th>제목</th>
+                <th>작성자</th>
+                <th>작성일</th>
+                <th>조회수</th>
+            </tr>
+            <tr>
+                <td>1</td>
+                <td>뉴스 제목 예시입니다.</td>
+                <td>작성자명</td>
+                <td>2026-05-04</td>
+                <td>12</td>
+            </tr>
+        </table>
+    </div>
+
+    <button id="insertBtn">뉴스 작성</button>
+</div>
+<div id="formView" style="display: none;">
+    <h1>뉴스 작성하기</h1>
+    <div class="input-form">
+        <form action="/insert" method="post">
+            <label>제목</label>
+            <input type="text" placeholder="제목을 입력해 주세요."><br>
+
+            <label>작성자</label>
+            <input type="text" placeholder="작성자를 입력해 주세요."><br>
+
+            <label>내용</label>
+            <input type="text" placeholder="내용을 입력해 주세요."><br>
+
+            <div class="form-buttons">
+                <input type="submit" value="작성">
+                <input type="reset" value="재작성">
+                <input type="button" value="취소" id="cancelBtn">
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    let boardView = document.getElementById('boardView');
+    let formView = document.getElementById('formView');
+    let insertBtn = document.getElementById('insertBtn');
+    let cancelBtn = document.getElementById('cancelBtn');
+
+    insertBtn.addEventListener('click', function() {
+            boardView.style.display = 'none';
+            formView.style.display = 'block';
+    })
+
+    cancelBtn.addEventListener('click', function() {
+        formView.style.display = 'none';
+        boardView.style.display = 'block';
+    })
+</script>
 </body>
 </html>
