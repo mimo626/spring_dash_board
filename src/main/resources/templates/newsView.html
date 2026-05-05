@@ -52,7 +52,11 @@
             padding: 12px 8px;
             text-align: center;
         }
-
+        a {
+            text-decoration: none;
+            color: inherit;
+            display: inline-block;
+        }
         th {
             background-color: #007BFF;
             color: #FFFFFF;
@@ -69,8 +73,8 @@
     <h1>뉴스 게시판</h1>
 
     <div class="search-area">
-        <form action="/search" method="get">
-            <input type="text" placeholder="검색어를 입력해 주세요.">
+        <form th:action="@{/search(word=word)}" method="get">
+            <input type="text" name="word" placeholder="검색어를 입력해 주세요.">
             <input type="submit" value="검색">
         </form>
     </div>
@@ -84,30 +88,34 @@
                 <th>작성일</th>
                 <th>조회수</th>
             </tr>
-            <tr>
-                <td>1</td>
-                <td>뉴스 제목 예시입니다.</td>
-                <td>작성자명</td>
-                <td>2026-05-04</td>
-                <td>12</td>
+            <tr th:each="n : ${newsList}">
+                <td th:text="${nStat.count}"></td>
+
+                <td>
+                    <a href="javascript:void(0);" th:onclick="|getNewsDetail(${n.id})|" th:text="${n.title}"></a>                </td>
+                <td>
+                    <a th:href="@{/writer/{writer}(writer=${n.writer})}" th:text="${n.writer}"></a>
+                </td>
+                <td th:text="${#temporals.format(n.writeDate, 'yyyy-MM-dd')}"></td>
+                <td th:id="'cnt_' + ${n.id}" th:text="${n.cnt}"></td>
             </tr>
         </table>
     </div>
 
     <button id="insertBtn">뉴스 작성</button>
 </div>
-<div id="formView" style="display: none;">
+<div id="createNewsForm" style="display: none;">
     <h1>뉴스 작성하기</h1>
     <div class="input-form">
         <form action="/insert" method="post">
             <label>제목</label>
-            <input type="text" placeholder="제목을 입력해 주세요."><br>
+            <input type="text" name="title" placeholder="제목을 입력해 주세요."><br>
 
             <label>작성자</label>
-            <input type="text" placeholder="작성자를 입력해 주세요."><br>
+            <input type="text" name="writer" placeholder="작성자를 입력해 주세요."><br>
 
             <label>내용</label>
-            <input type="text" placeholder="내용을 입력해 주세요."><br>
+            <input type="text" name = "content" placeholder="내용을 입력해 주세요."><br>
 
             <div class="form-buttons">
                 <input type="submit" value="작성">
@@ -117,22 +125,90 @@
         </form>
     </div>
 </div>
+<div id="formView" style="display: none;">
+    <h1>뉴스 내용</h1>
+    <div class="input-form">
+        <form th:action="@{/update}" method="post">
+            <input type="hidden" name="id" id="detailId">
+
+            <label>제목</label>
+            <input type="text" name="title" id="detailTitle"><br>
+
+            <label>작성자</label>
+            <input type="text" name="writer" id="detailWriter"><br>
+
+            <label>내용</label>
+            <input type="text" name="content" id="detailContent"><br>
+
+            <div class="form-buttons">
+                <input type="button" value="확인" id="confirmBtn">
+                <input type="submit" value="수정">
+                <input type="button" value="삭제" id="deleteBtn">
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
     let boardView = document.getElementById('boardView');
+    let createNewsForm = document.getElementById('createNewsForm');
     let formView = document.getElementById('formView');
     let insertBtn = document.getElementById('insertBtn');
     let cancelBtn = document.getElementById('cancelBtn');
+    let confirmBtn = document.getElementById('confirmBtn');
 
+    // [뉴스 작성] 버튼 클릭 시
     insertBtn.addEventListener('click', function() {
-            boardView.style.display = 'none';
-            formView.style.display = 'block';
-    })
+        boardView.style.display = 'none';
+        createNewsForm.style.display = 'block';
+    });
 
+    // [취소] 버튼 클릭 시
     cancelBtn.addEventListener('click', function() {
+        createNewsForm.style.display = 'none';
+        boardView.style.display = 'block';
+    });
+
+    // [상세조회 - 확인] 버튼 클릭 시
+    confirmBtn.addEventListener('click', function() {
         formView.style.display = 'none';
         boardView.style.display = 'block';
-    })
+    });
+
+    // [뉴스 제목 클릭 시 실행되는 AJAX 함수]
+    function getNewsDetail(id) {
+        let xhr = new XMLHttpRequest();
+
+        xhr.open('GET', '/one?id=' + id, true);
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                let news = JSON.parse(xhr.responseText);
+
+                document.getElementById('detailId').value = news.id;
+                document.getElementById('detailTitle').value = news.title;
+                document.getElementById('detailWriter').value = news.writer;
+                document.getElementById('detailContent').value = news.content;
+
+                document.getElementById('cnt_' + news.id).innerText = news.cnt;
+
+                boardView.style.display = 'none';
+                formView.style.display = 'block';
+            } else {
+                console.log("데이터를 불러오는데 실패했습니다.");
+            }
+        };
+        xhr.send();
+    }
+    // [상세조회 - 삭제] 버튼 클릭 시
+    deleteBtn.addEventListener('click', function() {
+    let id = document.getElementById('detailId').value;
+
+    if (confirm("정말 이 뉴스를 삭제하시겠습니까?")) {
+        location.href = '/delete?id=' + id;
+    }
+});
+
 </script>
 </body>
 </html>
