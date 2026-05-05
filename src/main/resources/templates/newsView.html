@@ -73,8 +73,8 @@
     <h1>뉴스 게시판</h1>
 
     <div class="search-area">
-        <form th:action="@{/search(word=word)}" method="get">
-            <input type="text" name="word" placeholder="검색어를 입력해 주세요.">
+        <form id="searchForm" th:action="@{/search}" method="get">
+            <input type="text" id="searchInput" name="word" placeholder="검색어를 입력해 주세요.">
             <input type="submit" value="검색">
         </form>
     </div>
@@ -152,10 +152,25 @@
 <script>
     let boardView = document.getElementById('boardView');
     let createNewsForm = document.getElementById('createNewsForm');
-    let formView = document.getElementById('formView');
     let insertBtn = document.getElementById('insertBtn');
+
+    let formView = document.getElementById('formView');
     let cancelBtn = document.getElementById('cancelBtn');
     let confirmBtn = document.getElementById('confirmBtn');
+
+    let searchForm = document.getElementById('searchForm');
+    let searchInput = document.getElementById('searchInput');
+
+    // [검색 폼 전송(submit) 시 이벤트 가로채기]
+    searchForm.addEventListener('submit', function(e) {
+        let keyword = searchInput.value.trim();
+
+        if (keyword === "") {
+            e.preventDefault();
+            alert("검색어를 입력해 주세요!");
+            searchInput.focus();
+        }
+    });
 
     // [뉴스 작성] 버튼 클릭 시
     insertBtn.addEventListener('click', function() {
