@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>에러 발생</title>
+    <style>
+        body { text-align: center; padding: 100px; font-family: sans-serif; }
+        h1 { color: #FF6B6B; }
+        .error-box { background-color: #f8f9fa; padding: 20px; border-radius: 10px; display: inline-block; }
+        button { margin-top: 20px; padding: 10px 20px; background-color: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+<div class="error-box">
+    <h1>문제가 발생했습니다!</h1>
+    <p>요청하신 작업을 처리하는 중 오류가 발생했습니다.</p>
+
+    <p style="color: gray; font-size: 12px;" th:text="${errorMessage}"></p>
+
+    <button onclick="location.href='/newsMain'">메인으로 돌아가기</button>
+</div>
+</body>
+</html>
