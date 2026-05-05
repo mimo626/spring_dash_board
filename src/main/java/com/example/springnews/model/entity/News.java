@@ -3,6 +3,7 @@ package com.example.springnews.model.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 
@@ -23,6 +24,7 @@ public class News {
     private String content;
     // 글 작성 시간으로 자동 설정되도록 애노테이션 설정
     @CreationTimestamp
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Column(name = "writedate")
     private LocalDateTime writeDate;
     private int cnt;
