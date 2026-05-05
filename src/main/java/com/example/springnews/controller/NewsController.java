@@ -15,7 +15,6 @@ public class NewsController {
 
     private final NewsRepository newsR;
 
-//    GET 방식
 //    URL을 입력하여 요청 -> 전체 뉴스 출력 (매핑명 : /newsmain)
     @RequestMapping("/newsMain")
     public ModelAndView newsMain(){
@@ -30,30 +29,37 @@ public class NewsController {
     @ResponseBody
     public News one(int id){
         News news = newsR.findNewsById(id);
-        newsR.updateNewsCnt(news.getId(), news.getCnt());
-        news.setCnt(news.getCnt() + 1);
+
+        if(news != null) {
+            newsR.updateNewsCnt(news.getId(), news.getCnt());
+            news.setCnt(news.getCnt() + 1);
+        }
 
         return news;
     }
 //    삭제 버튼을 클릭하여 요청 -> 뉴스 id 로 뉴스 삭제 (매핑명 : /delete)
     @GetMapping("/delete")
     public String delete(int id){
-        if(newsR.deleteNewsById(id) == 1){
-            return "redirect:/newsMain";
-        } else {
-            return "redirect:/newsMain";
-        }
+        newsR.deleteNewsById(id);
+
+        return "redirect:/newsMain";
     }
 //    검색 요청 -> 전달된 검색어로 뉴스글 내용 에서 검색하여 결과 출력 (매핑명 : /search)
     @GetMapping("/search")
     public ModelAndView search(String word){
         ModelAndView mav = new ModelAndView();
 
-        if(word != null && !word.isEmpty()){
-           List<News> newsList = newsR.searchNews(word);
-            mav.addObject("newsList",newsList);
-            mav.setViewName("newsView");
+        // 1. 검색어가 비어있거나 공백만 있다면 메인 페이지로 리다이렉트 (가장 권장)
+        if(word == null || word.trim().isEmpty()){
+            mav.setViewName("redirect:/newsMain");
+            return mav;
         }
+
+        // 2. 검색어가 정상적으로 있을 때만 검색 로직 실행
+        List<News> newsList = newsR.searchNews(word);
+        mav.addObject("newsList", newsList);
+        mav.setViewName("newsView");
+
         return mav;
     }
 //    리스트에 출력된 작성자 이름을 클릭하여 요청 -> 작성자가 작성한 뉴스 글만 출력 (매핑명 : /writer)
