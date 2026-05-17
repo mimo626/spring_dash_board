@@ -3,6 +3,10 @@ package com.example.springnews.controller;
 import com.example.springnews.model.entity.News;
 import com.example.springnews.repository.NewsRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
@@ -17,10 +21,12 @@ public class NewsController {
 
 //    URL을 입력하여 요청 -> 전체 뉴스 출력 (매핑명 : /newsmain)
     @RequestMapping("/newsMain")
-    public ModelAndView newsMain(){
+    public ModelAndView newsMain(
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+
         ModelAndView mav = new ModelAndView();
-        List<News> newsList = newsR.findAll();
-        mav.addObject("newsList",newsList);
+        Page<News> newsPage = newsR.findAll(pageable); // List 대신 Page 사용
+        mav.addObject("newsPage", newsPage);
         mav.setViewName("newsView");
         return mav;
     }
@@ -46,32 +52,40 @@ public class NewsController {
     }
 //    검색 요청 -> 전달된 검색어로 뉴스글 내용 에서 검색하여 결과 출력 (매핑명 : /search)
     @GetMapping("/search")
-    public ModelAndView search(String word){
+    public ModelAndView search(
+            String content,
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+
         ModelAndView mav = new ModelAndView();
 
-        // 1. 검색어가 비어있거나 공백만 있다면 메인 페이지로 리다이렉트 (가장 권장)
-        if(word == null || word.trim().isEmpty()){
+        if(content == null || content.trim().isEmpty()){
             mav.setViewName("redirect:/newsMain");
             return mav;
         }
 
-        // 2. 검색어가 정상적으로 있을 때만 검색 로직 실행
-        List<News> newsList = newsR.searchNews(word);
-        mav.addObject("newsList", newsList);
+        Page<News> newsPage = newsR.searchNews(content, pageable);
+        mav.addObject("newsPage", newsPage);
+        mav.addObject("content", content); // 페이지 이동 시 검색어 유지를 위해 추가
         mav.setViewName("newsView");
 
         return mav;
     }
 //    리스트에 출력된 작성자 이름을 클릭하여 요청 -> 작성자가 작성한 뉴스 글만 출력 (매핑명 : /writer)
     @GetMapping("/writer/{writer}")
-    public ModelAndView writer(@PathVariable("writer") String writer){
+    public ModelAndView writer(
+            @PathVariable("writer") String writer,
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
+
         ModelAndView mav = new ModelAndView();
         System.out.println(writer);
 
         if(writer != null && !writer.isEmpty()){
-            List<News> newsList = newsR.findNewsByWriter(writer);
-            mav.addObject("newsList",newsList);
+            Page<News> newsPage = newsR.findNewsByWriter(writer, pageable);
+            mav.addObject("newsPage", newsPage);
+            mav.addObject("writer", writer);
             mav.setViewName("newsView");
+        } else {
+            mav.setViewName("redirect:/newsMain");
         }
         return mav;
     }
