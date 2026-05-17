@@ -65,6 +65,28 @@
         #insertBtn {
             margin: 20px;
         }
+        .pagination {
+            margin-top: 30px;
+            text-align: center;
+        }
+        .pagination a {
+            padding: 8px 12px;
+            margin: 0 2px;
+            border: 1px solid #cccccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            color: #333;
+            font-size: 14px;
+        }
+        .pagination a:hover {
+            background-color: #e0e0e0;
+        }
+        .pagination a.active {
+            background-color: #007BFF;
+            color: white;
+            border-color: #007BFF;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -74,7 +96,7 @@
 
     <div class="search-area">
         <form id="searchForm" th:action="@{/search}" method="get">
-            <input type="text" id="searchInput" name="word" placeholder="검색어를 입력해 주세요.">
+            <input type="text" id="searchInput" name="content" placeholder="검색어를 입력해 주세요.">
             <input type="submit" value="검색">
         </form>
     </div>
@@ -88,11 +110,12 @@
                 <th>작성일</th>
                 <th>조회수</th>
             </tr>
-            <tr th:each="n : ${newsList}">
+            <tr th:each="n, nStat : ${newsPage}">
                 <td th:text="${nStat.count}"></td>
 
                 <td>
-                    <a href="javascript:void(0);" th:onclick="|getNewsDetail(${n.id})|" th:text="${n.title}"></a>                </td>
+                    <a href="javascript:void(0);" th:onclick="|getDetail(${n.id})|" th:text="${n.title}"></a>
+                </td>
                 <td>
                     <a th:href="@{/writer/{writer}(writer=${n.writer})}" th:text="${n.writer}"></a>
                 </td>
@@ -100,6 +123,21 @@
                 <td th:id="'cnt_' + ${n.id}" th:text="${n.cnt}"></td>
             </tr>
         </table>
+    </div>
+
+    <div class="pagination" th:if="${newsPage.totalPages > 0}">
+
+        <a th:if="${newsPage.hasPrevious()}"
+           th:href="@{''(page=${newsPage.number - 1}, content=${content}, writer=${writer})}">이전</a>
+
+        <th:block th:each="pageNumber : ${#numbers.sequence(0, newsPage.totalPages - 1)}">
+            <a th:href="@{''(page=${pageNumber}, content=${content}, writer=${writer})}"
+               th:text="${pageNumber + 1}"
+               th:classappend="${pageNumber == newsPage.number} ? 'active' : ''"></a>
+        </th:block>
+
+        <a th:if="${newsPage.hasNext()}"
+           th:href="@{''(page=${newsPage.number + 1}, content=${content}, writer=${writer})}">다음</a>
     </div>
 
     <button id="insertBtn">뉴스 작성</button>
