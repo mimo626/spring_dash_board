@@ -2,6 +2,8 @@ package com.example.springnews.repository;
 
 import com.example.springnews.model.entity.News;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -18,7 +20,8 @@ public interface NewsRepository extends JpaRepository<News, Integer> {
 //    id 로 글 한 개 읽기
     public News findNewsById(int id);
 
-    public List<News> findNewsByWriter(String writer);
+    // 작성자 검색 페이징 적용
+    Page<News> findNewsByWriter(String writer, Pageable pageable);
 
 //    뉴스글 삭제
     @Transactional
@@ -28,7 +31,7 @@ public interface NewsRepository extends JpaRepository<News, Integer> {
 
 //    뉴스 글 내용에서 검색
     @Query("SELECT n FROM News n WHERE n.content LIKE %:content%")
-    public List<News> searchNews(String content);
+    Page<News> searchNews(@Param("content") String content, Pageable pageable);
 
 //    글 한 개를 읽은 경우에는 cnt 변경
     @Modifying
